@@ -6,11 +6,9 @@
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
       rel="stylesheet"
-      integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
-      crossorigin="anonymous"
     />
     <style>
-      .uploaddSection {
+      .uploadSection {
         border: 2px solid blue;
         border-style: dashed;
       }
@@ -20,7 +18,7 @@
     <div class="container">
       <div class="row">
         <div class="col-md-12">
-          <div class="uploaddSection p-5">
+          <div class="uploadSection p-5">
             <input
               class="btn btn-primary"
               type="file"
@@ -40,21 +38,22 @@
               <canvas class="w-100" id="canvas" style="display: none"></canvas>
               <img class="img-fluid" id="bmpImage" style="display: none" />
             </div>
+
+            <h3 class="text-primary">GENERATED CODE HERE</h3>
+            <textarea
+              id="cArrayCode"
+              class="form-control mt-3"
+              rows="10"
+              readonly
+              style="display: none"
+            ></textarea>
           </div>
         </div>
       </div>
     </div>
 
-    <script
-      src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
-      integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r"
-      crossorigin="anonymous"
-    ></script>
-    <script
-      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js"
-      integrity="sha384-BBtl+eGJRgqQAUMxJ7pMwbEyER4l1g+O15P+16Ep7Q9Q+zqX6gSbd85u4mG4QzX+"
-      crossorigin="anonymous"
-    ></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js"></script>
     <script>
       document.getElementById("convertButton").addEventListener("click", () => {
         const jpgFileInput = document.getElementById("jpgFileInput");
@@ -62,6 +61,7 @@
         const canvas = document.getElementById("canvas");
         const context = canvas.getContext("2d");
         const bmpImage = document.getElementById("bmpImage");
+        const cArrayCode = document.getElementById("cArrayCode");
 
         if (jpgFileInput.files.length === 0) {
           alert("Please select a JPG file.");
@@ -86,12 +86,28 @@
               downloadLink.href = bmpURL;
               downloadLink.download = "output.bmp";
               downloadLink.style.display = "block";
+
+              generateCArray(blob);
             }, "image/bmp");
           };
         };
 
         reader.readAsDataURL(jpgFile);
       });
+
+      function generateCArray(blob) {
+        const reader = new FileReader();
+        reader.onload = function () {
+          const byteArray = new Uint8Array(reader.result);
+          const cArrayString = `const unsigned char epd_bitmap_${Date.now()} [] PROGMEM = { ${Array.from(
+            byteArray
+          )} };`;
+          document.getElementById("cArrayCode").value = cArrayString;
+          document.getElementById("cArrayCode").style.display = "block";
+        };
+
+        reader.readAsArrayBuffer(blob);
+      }
     </script>
   </body>
 </html>
